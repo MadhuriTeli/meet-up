@@ -53,6 +53,6 @@ export function App() {
 }
 
 function Index() {
-  const { data } = trpc.experiences.byId.useQuery({ id: 1 });
-  return <div>{data?.title}</div>
+  const experiences = trpc.experiences.feed.useQuery({});
+  return <div></div>
 }
