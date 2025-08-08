@@ -7,6 +7,7 @@ import { trpc } from "@/trpc";
 import {zodResolver} from '@hookform/resolvers/zod'
 import { Button } from "@/features/shared/components/ui/Button";
 import { TextArea } from "@/features/shared/components/ui/TextArea";
+import { useToast } from "@/features/shared/hooks/useToast";
 
 type CommentCreateFormData = z.infer<typeof commentValidationSchema>
 
@@ -15,6 +16,8 @@ type CommentCreateFormProps = {
 }
 
 export function CommentCreateForm({ experienceId }: CommentCreateFormProps) {
+    const { toast } = useToast();
+    const utils = trpc.useUtils();
     const form = useForm<CommentCreateFormData>({
         resolver: zodResolver(commentValidationSchema),
         defaultValues: {
@@ -22,7 +25,26 @@ export function CommentCreateForm({ experienceId }: CommentCreateFormProps) {
         },
     });
 
-    const addCommentMutation = trpc.comments.add.useMutation();
+    const addCommentMutation = trpc.comments.add.useMutation({
+
+        onSuccess: async({ experienceId }) => {
+            await Promise.all([
+                utils.comments.byExperienceId.invalidate({ experienceId }),
+                utils.experiences.feed.invalidate()
+            ]);
+            form.reset();
+            toast({
+                title: "Comment added Successfully"
+            })
+        },
+        onError: (error) => {
+            toast({
+                title: "Failed to add comment",
+                description: error.message,
+                variant : "destructive"
+            })
+        }
+    });
 
     const handleSubmit = form.handleSubmit((data) => {
         addCommentMutation.mutate({
