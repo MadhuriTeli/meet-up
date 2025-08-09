@@ -1,5 +1,15 @@
+import { Home } from "lucide-react";
 import ThemeToggleButton from "./ThemeToggleButton";
+import Link from "./ui/Link";
 
 export default function Navigation() {
-  return <nav className="flex w-64 flex-col gap-4 pt-8"><ThemeToggleButton /></nav>;
+  const navLinkClassName = "rounded-lg p-2 text-lg hover:bg-neutral-100 dark:hover:bg-neutral-800";
+  const activeNavLinkClassName = "bg-neutral-100 dark:bg-neutral-800";
+  
+  return <nav className="flex w-64 flex-col gap-4 pt-8">
+    <Link to="/"
+      className={ navLinkClassName} activeProps={{ className: activeNavLinkClassName }}>
+      <Home className="h-6 w-6" />Home </Link>
+    <ThemeToggleButton />
+  </nav>;
 }
