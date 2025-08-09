@@ -4,12 +4,13 @@ import { env } from './lib/utils/env';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter as createTanStackRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
+import Spinner from './features/shared/components/ui/Spinner';
 
 
 export const queryClient = new QueryClient();
 
 export const trpc = createTRPCReact<AppRouter>();
- 
+
 export const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
@@ -17,7 +18,7 @@ export const trpcClient = trpc.createClient({
     }),
   ],
 });
-  
+
 export const trpcQueryUtils = createTRPCQueryUtils({
   queryClient,
   client: trpcClient,
@@ -31,6 +32,12 @@ function createRouter() {
     context: {
       trpcQueryUtils,
     },
+
+    defaultPendingComponent: () =>(
+      <div className="flex items-center justify-center">
+        <Spinner />
+      </div>),
+
     Wrap: function WrapComponent({ children }) {
       return (
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
@@ -46,7 +53,7 @@ function createRouter() {
 
 export const router = createRouter();
 declare module '@tanstack/react-router' {
-  interface Register{
+  interface Register {
     router: ReturnType<typeof createRouter>;
   }
 }
