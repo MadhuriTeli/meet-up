@@ -126,7 +126,7 @@ export const commentRouter = router({
       return comment[0];
     }),
 
-  edit: protectedProcedure
+  edit: publicProcedure
     .input(
       z.object({
         id: commentSelectSchema.shape.id,
@@ -137,6 +137,8 @@ export const commentRouter = router({
       const comment = await db.query.commentsTable.findFirst({
         where: eq(commentsTable.id, input.id),
       });
+      //ToDo: Remove this once we have real user
+      const userId = 1;
 
       if (!comment) {
         throw new TRPCError({
@@ -145,7 +147,7 @@ export const commentRouter = router({
         });
       }
 
-      if (comment.userId !== ctx.user.id) {
+      if (comment.userId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only edit your own comments",
