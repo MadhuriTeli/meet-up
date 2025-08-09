@@ -7,7 +7,7 @@ import Card from "@/features/shared/components/ui/Card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/features/shared/components/ui/Form";
 import { Button } from "@/features/shared/components/ui/Button";
 import { TextArea } from "@/features/shared/components/ui/TextArea";
-import { trpc } from "@/trpc";
+import { trpc } from "@/router";
 import { useToast } from "@/features/shared/hooks/useToast";
 
 
@@ -15,7 +15,7 @@ type CommentEditFormData = z.infer<typeof commentValidationSchema>
 
 type CommentEditFormProps = {
     comment: Comment,
-    setIsEditing: (value:boolean) => void;
+    setIsEditing: (value: boolean) => void;
 }
 
 export function CommentEditForm({ comment, setIsEditing }: CommentEditFormProps) {
@@ -23,19 +23,19 @@ export function CommentEditForm({ comment, setIsEditing }: CommentEditFormProps)
     const utils = trpc.useUtils();
 
     const form = useForm<CommentEditFormData>({
-            resolver: zodResolver(commentValidationSchema),
-            defaultValues: {
-                content: comment.content,
-            },
+        resolver: zodResolver(commentValidationSchema),
+        defaultValues: {
+            content: comment.content,
+        },
     });
-    
+
     const editMutation = trpc.comments.edit.useMutation({
         onSuccess: async ({ experienceId }) => {
             utils.comments.byExperienceId.invalidate({ experienceId }),
                 setIsEditing(false);
             toast({
                 title: "Comment edited Successfully"
-                })
+            })
         },
         onError: (error) => {
             toast({
@@ -52,25 +52,25 @@ export function CommentEditForm({ comment, setIsEditing }: CommentEditFormProps)
             content: data.content,
         });
     });
-    
+
     return <Form {...form}>
         <Card>
-        <form onSubmit={handleSubmit} className="space-y-2">
-            <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <TextArea {...field} placeholder="Add a commment..." rows={4} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
+            <form onSubmit={handleSubmit} className="space-y-2">
+                <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <TextArea {...field} placeholder="Add a commment..." rows={4} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
                 <div className="flex gap-4">
                     <Button type="submit" disabled={editMutation.isPending}>{editMutation.isPending ? 'Saving... ' : "Save"}</Button>
-                    <Button variant="link" disabled={editMutation.isPending}  onClick ={()=> setIsEditing(false)}>Cancel</Button>
+                    <Button variant="link" disabled={editMutation.isPending} onClick={() => setIsEditing(false)}>Cancel</Button>
                 </div>
             </form>
         </Card>

@@ -2,24 +2,13 @@ import { useState } from "react";
 import Navbar from "./features/shared/components/Navbar";
 import ThemeProvider from "./features/shared/components/ThemeProvider";
 import { Toaster } from "./features/shared/components/ui/Toaster";
-import { trpc } from "./trpc";
+import { trpc, trpcClient } from "./router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
-import { env } from "./lib/utils/env";
 import { ExperienceList } from "./features/experiences/components/ExperienceList";
 import { InfiniteScroll } from "./features/shared/components/InfiniteScroll";
 
 export function App() {
   const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: env.VITE_SERVER_BASE_URL,
-        }),
-      ],
-    }),
-  );
 
   return (
     <>
@@ -43,7 +32,7 @@ export function App() {
                   </p>
                 </header>
                 <div className="space-y-4 p-4">
-                  <Index/>
+                  <Index />
                 </div>
               </div>
             </div>

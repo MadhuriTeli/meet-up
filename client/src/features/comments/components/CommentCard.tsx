@@ -6,7 +6,7 @@ import { Button } from "@/features/shared/components/ui/Button";
 import { Dialog, DialogTitle, DialogTrigger } from "@radix-ui/react-dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@/features/shared/components/ui/Dialog";
 import { useToast } from "@/features/shared/hooks/useToast";
-import { trpc } from "@/trpc";
+import { trpc } from "@/router";
 
 type CommentCardProps = {
     comment: CommentForList;
@@ -23,8 +23,8 @@ export function CommentCard({ comment }: CommentCardProps) {
         <Card className='space-y-4'>
             <CommentCardHeader comment={comment} />
             <CommentCardContent comment={comment} />
-            <CommentCardButtons comment={comment} setEditing={setIsEditing}/>
-        
+            <CommentCardButtons comment={comment} setEditing={setIsEditing} />
+
         </Card>
     );
 }
@@ -34,17 +34,17 @@ type CommentCardHeaderProps = Pick<CommentCardProps, 'comment'>
 function CommentCardHeader({ comment }: CommentCardHeaderProps) {
     return <div className="flex items-center gap-2">
         <div>{comment.user.name}</div>
-        <time className="text-sm text-neutral-500">{ new Date(comment.createdAt).toLocaleDateString()}</time>
+        <time className="text-sm text-neutral-500">{new Date(comment.createdAt).toLocaleDateString()}</time>
     </div>
 }
 
 type CommentCardContentProps = Pick<CommentCardProps, 'comment'>
 
 function CommentCardContent({ comment }: CommentCardContentProps) {
-    return <p>{ comment.content}</p>
+    return <p>{comment.content}</p>
 }
 
-type CommentCardButtonsProps = Pick<CommentCardProps, 'comment'> &{
+type CommentCardButtonsProps = Pick<CommentCardProps, 'comment'> & {
     setEditing: (value: boolean) => void;
 }
 
@@ -52,12 +52,12 @@ function CommentCardButtons({ comment, setEditing }: CommentCardButtonsProps) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const { toast } = useToast();
     const utils = trpc.useUtils();
-    
+
     const deleteMutation = trpc.comments.delete.useMutation({
         onSuccess: async () => {
             await Promise.all([
                 utils.comments.byExperienceId.invalidate({
-                    experienceId: comment.experienceId  
+                    experienceId: comment.experienceId
                 }),
                 utils.experiences.feed.invalidate()
             ]);
@@ -77,7 +77,7 @@ function CommentCardButtons({ comment, setEditing }: CommentCardButtonsProps) {
 
     return (<div className="flex gap-4">
         <Button variant='link' onClick={() => setEditing(true)}>Edit</Button>
-    
+
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <DialogTrigger asChild>
                 <Button variant='destructive-link'>Delete</Button>
@@ -93,7 +93,7 @@ function CommentCardButtons({ comment, setEditing }: CommentCardButtonsProps) {
                     <Button variant='outline' onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
                     <Button variant='destructive'
                         onClick={() => deleteMutation.mutate({ id: comment.id })}
-                        disabled={deleteMutation.isPending}> {deleteMutation.isPending ? "Deleting...":"Delete"}</Button>
+                        disabled={deleteMutation.isPending}> {deleteMutation.isPending ? "Deleting..." : "Delete"}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

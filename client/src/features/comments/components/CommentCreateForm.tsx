@@ -1,10 +1,10 @@
 import { Experience } from "@advanced-react/server/database/schema";
 import { commentValidationSchema } from "../../../../../shared/schema/comment";
 import z from "zod";
-import {  useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/features/shared/components/ui/Form";
-import { trpc } from "@/trpc";
-import {zodResolver} from '@hookform/resolvers/zod'
+import { trpc } from "@/router";
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from "@/features/shared/components/ui/Button";
 import { TextArea } from "@/features/shared/components/ui/TextArea";
 import { useToast } from "@/features/shared/hooks/useToast";
@@ -18,7 +18,7 @@ type CommentCreateFormProps = {
 export function CommentCreateForm({ experienceId }: CommentCreateFormProps) {
     const { toast } = useToast();
     const utils = trpc.useUtils();
-    
+
     const form = useForm<CommentCreateFormData>({
         resolver: zodResolver(commentValidationSchema),
         defaultValues: {
@@ -28,7 +28,7 @@ export function CommentCreateForm({ experienceId }: CommentCreateFormProps) {
 
     const addCommentMutation = trpc.comments.add.useMutation({
 
-        onSuccess: async({ experienceId }) => {
+        onSuccess: async ({ experienceId }) => {
             await Promise.all([
                 utils.comments.byExperienceId.invalidate({ experienceId }),
                 utils.experiences.feed.invalidate()
@@ -42,7 +42,7 @@ export function CommentCreateForm({ experienceId }: CommentCreateFormProps) {
             toast({
                 title: "Failed to add comment",
                 description: error.message,
-                variant : "destructive"
+                variant: "destructive"
             })
         }
     });

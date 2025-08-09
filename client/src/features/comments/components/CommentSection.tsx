@@ -1,23 +1,23 @@
-import { trpc } from "@/trpc"
+import { trpc } from "@/router"
 import { Experience } from "@advanced-react/server/database/schema"
 import { CommentsList } from "./CommentsList";
 import { CommentCreateForm } from "./CommentCreateForm";
 
 type CommentSectionProps = {
     experienceId: Experience['id'],
-    commentsCount : number
+    commentsCount: number
 }
 
 export function CommentSection({ experienceId, commentsCount }: CommentSectionProps) {
     const commentsQuery = trpc.comments.byExperienceId.useQuery(
         { experienceId },
         {
-        enabled: commentsCount>0
+            enabled: commentsCount > 0
         }
     );
-    
 
-    if (commentsQuery.error) 
+
+    if (commentsQuery.error)
         return <div>Something went wrong...</div>
 
     return (
